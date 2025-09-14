@@ -101,13 +101,15 @@ function App() {
       />
 
       {/* Question Modal */}
-      <QuestionModal
-        question={gameState.currentQuestion}
-        isOpen={gameState.isQuestionModalOpen}
-        attempts={gameState.attempts}
-        onAnswer={actions.answerQuestion}
-        onClose={actions.closeQuestionModal}
-      />
+      {gameState.isQuestionModalOpen && gameState.currentQuestion && (
+        <QuestionModal
+          question={gameState.currentQuestion}
+          isOpen={gameState.isQuestionModalOpen}
+          attempts={gameState.attempts}
+          onAnswer={actions.answerQuestion}
+          onClose={actions.closeQuestionModal}
+        />
+      )}
 
       {/* Reset Button */}
       <button

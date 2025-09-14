@@ -34,13 +34,13 @@ export const TreasureInteractionUI: React.FC<TreasureInteractionUIProps> = ({
         
         <button
           onClick={onInteract}
-          className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105"
+          className="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-white font-bold px-8 py-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105 animate-pulse"
         >
           Open Treasure Box
         </button>
         
         <p className="text-sm text-gray-500 mt-3">
-          Or press <kbd className="bg-gray-200 px-2 py-1 rounded">E</kbd> to interact
+          Press <kbd className="bg-gray-200 px-2 py-1 rounded font-bold">E</kbd> or <kbd className="bg-gray-200 px-2 py-1 rounded font-bold">Double-Click</kbd>
         </p>
       </div>
     </div>

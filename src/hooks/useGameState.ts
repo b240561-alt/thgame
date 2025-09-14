@@ -127,6 +127,7 @@ export const useGameState = () => {
   const interactWithTreasureBox = useCallback((boxId: string) => {
     const box = gameState.treasureBoxes.find(b => b.id === boxId);
     if (box && box.isUnlocked && !box.isCompleted) {
+      console.log('Opening treasure box:', boxId, box.question);
       setGameState(prev => ({
         ...prev,
         isQuestionModalOpen: true,

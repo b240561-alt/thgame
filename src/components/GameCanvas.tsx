@@ -297,7 +297,11 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       // Hint arrow for next treasure (if hints enabled)
       if (hintsEnabled && box.isUnlocked && !box.isCompleted && index === treasureBoxes.findIndex(b => b.isUnlocked && !b.isCompleted)) {
         const arrowGeometry = new THREE.ConeGeometry(0.5, 2);
-        const arrowMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+        const arrowMaterial = new THREE.MeshBasicMaterial({ 
+          color: 0x00FF00,
+          transparent: true,
+          opacity: 0.8
+        });
         const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
         arrow.position.set(box.x, 6, box.y);
         arrow.rotation.x = Math.PI;
@@ -307,6 +311,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         const animateArrow = () => {
           arrow.position.y = 6 + Math.sin(Date.now() * 0.005) * 1;
           arrow.rotation.z += 0.02;
+          arrow.material.opacity = 0.6 + Math.sin(Date.now() * 0.003) * 0.2;
         };
         
         const arrowAnimation = () => {
