@@ -124,19 +124,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
     };
 
     // Create dense jungle with varied tree sizes
-    for (let i = 0; i < 150; i++) {
+    for (let i = 0; i < 100; i++) {
       const x = (Math.random() - 0.5) * 350;
       const z = (Math.random() - 0.5) * 350;
       const scale = 0.7 + Math.random() * 0.8;
       
       // Avoid placing trees too close to center (spawn area)
-      if (Math.sqrt(x * x + z * z) > 15) {
+      if (Math.sqrt(x * x + z * z) > 20) {
         scene.add(createTree(x, z, scale));
       }
     }
 
     // Add rocks and jungle debris
-    for (let i = 0; i < 50; i++) {
+    for (let i = 0; i < 30; i++) {
       const rockGeometry = new THREE.DodecahedronGeometry(1 + Math.random() * 2);
       const rockMaterial = new THREE.MeshLambertMaterial({ color: 0x696969 });
       const rock = new THREE.Mesh(rockGeometry, rockMaterial);
@@ -144,7 +144,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       const x = (Math.random() - 0.5) * 300;
       const z = (Math.random() - 0.5) * 300;
       
-      if (Math.sqrt(x * x + z * z) > 10) {
+      if (Math.sqrt(x * x + z * z) > 15) {
         rock.position.set(x, Math.random() * 2, z);
         rock.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
         rock.castShadow = true;

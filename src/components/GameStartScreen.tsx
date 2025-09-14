@@ -11,17 +11,31 @@ export const GameStartScreen: React.FC<GameStartScreenProps> = ({ onStartGame, i
 
   useEffect(() => {
     if (isLoading) {
-      const interval = setInterval(() => {
+      let progressInterval: NodeJS.Timeout;
+      let autoStartTimeout: NodeJS.Timeout;
+      
+      progressInterval = setInterval(() => {
         setLoadingProgress(prev => {
           if (prev >= 100) {
-            clearInterval(interval);
+            clearInterval(progressInterval);
             return 100;
           }
-          return prev + Math.random() * 15;
+          return prev + Math.random() * 20;
         });
-      }, 200);
+      }, 150);
+      
+      // Auto-start game after 5 seconds
+      autoStartTimeout = setTimeout(() => {
+        setLoadingProgress(100);
+        setTimeout(() => {
+          onStartGame();
+        }, 500);
+      }, 5000);
 
-      return () => clearInterval(interval);
+      return () => {
+        clearInterval(progressInterval);
+        clearTimeout(autoStartTimeout);
+      };
     }
   }, [isLoading]);
 
@@ -114,11 +128,19 @@ export const GameStartScreen: React.FC<GameStartScreenProps> = ({ onStartGame, i
 
         {/* Start Button */}
         <button
-          onClick={onStartGame}
+          onClick={() => {
+            if (!isLoading) {
+              // Start the loading process
+              setLoadingProgress(0);
+              // The parent component will handle setting isLoading to true
+              onStartGame();
+            }
+          }}
           className="bg-white hover:bg-green-50 text-green-600 font-bold text-xl px-12 py-4 rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105 hover:shadow-3xl flex items-center space-x-3 mx-auto"
+          disabled={isLoading}
         >
           <Play size={28} />
-          <span>Start Adventure</span>
+          <span>{isLoading ? 'Loading...' : 'Start Adventure'}</span>
         </button>
 
         <p className="text-green-200 text-sm mt-6">

@@ -67,12 +67,7 @@ export const useGameState = () => {
   });
 
   const startGame = useCallback(() => {
-    setGamePhase('loading');
-    
-    // Simulate loading time
-    setTimeout(() => {
-      setGamePhase('playing');
-    }, 3000);
+    setGamePhase('playing');
   }, []);
 
   // Save game state to localStorage
@@ -227,7 +222,7 @@ export const useGameState = () => {
     });
     
     localStorage.removeItem('treasureHuntSave');
-    setGamePhase('start');
+    setGamePhase('playing');
     setNearbyTreasure(null);
   }, []);
 

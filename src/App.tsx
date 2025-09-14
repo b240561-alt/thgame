@@ -11,13 +11,26 @@ function App() {
   const { gameState, gamePhase, nearbyTreasure, actions } = useGameState();
   const completedBoxes = gameState.treasureBoxes.filter(box => box.isCompleted).length;
   const totalBoxes = gameState.treasureBoxes.length;
+  const [showStartScreen, setShowStartScreen] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleStartGame = () => {
+    setIsLoading(true);
+    // The GameStartScreen will handle the 5-second loading and call handleGameStart
+  };
+
+  const handleGameStart = () => {
+    actions.startGame();
+    setShowStartScreen(false);
+    setIsLoading(false);
+  };
 
   // Show start screen
-  if (gamePhase === 'start' || gamePhase === 'loading') {
+  if (showStartScreen) {
     return (
       <GameStartScreen 
-        onStartGame={actions.startGame}
-        isLoading={gamePhase === 'loading'}
+        onStartGame={isLoading ? handleGameStart : handleStartGame}
+        isLoading={isLoading}
       />
     );
   }
@@ -58,15 +71,13 @@ function App() {
       />
 
       {/* Game UI */}
-      {gamePhase === 'playing' && (
-        <GameUI
-          player={gameState.player}
-          hintsEnabled={gameState.hintsEnabled}
-          onToggleHints={actions.toggleHints}
-          completedBoxes={completedBoxes}
-          totalBoxes={totalBoxes}
-        />
-      )}
+      <GameUI
+        player={gameState.player}
+        hintsEnabled={gameState.hintsEnabled}
+        onToggleHints={actions.toggleHints}
+        completedBoxes={completedBoxes}
+        totalBoxes={totalBoxes}
+      />
 
       {/* Question Modal */}
       <QuestionModal
@@ -78,15 +89,17 @@ function App() {
       />
 
       {/* Reset Button */}
-      {gamePhase === 'playing' && (
-        <button
-          onClick={actions.resetGame}
-          className="fixed bottom-4 left-4 z-50 bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105"
-          title="Reset Game"
-        >
-          <RotateCcw size={20} />
-        </button>
-      )}
+      <button
+        onClick={() => {
+          actions.resetGame();
+          setShowStartScreen(true);
+          setIsLoading(false);
+        }}
+        className="fixed bottom-4 left-4 z-50 bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105"
+        title="Reset Game"
+      >
+        <RotateCcw size={20} />
+      </button>
 
       {/* Completion Message */}
       {gamePhase === 'completed' && (
@@ -100,7 +113,11 @@ function App() {
               and <span className="font-bold text-purple-600">{gameState.player.xp}</span> XP!
             </p>
             <button
-              onClick={actions.resetGame}
+              onClick={() => {
+                actions.resetGame();
+                setShowStartScreen(true);
+                setIsLoading(false);
+              }}
               className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105"
             >
               Play Again
