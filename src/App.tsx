@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { GameCanvas } from './components/GameCanvas';
 import { GameStartScreen } from './components/GameStartScreen';
 import { TreasureInteractionUI } from './components/TreasureInteractionUI';
