@@ -1,37 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { GameCanvas } from './components/GameCanvas';
-import { GameStartScreen } from './components/GameStartScreen';
 import { TreasureInteractionUI } from './components/TreasureInteractionUI';
 import { QuestionModal } from './components/QuestionModal';
 import { GameUI } from './components/GameUI';
 import { useGameState } from './hooks/useGameState';
-import { TreePine, RotateCcw } from 'lucide-react';
+import { TreePine, RotateCcw, Play } from 'lucide-react';
 
 function App() {
   const { gameState, gamePhase, nearbyTreasure, actions } = useGameState();
   const completedBoxes = gameState.treasureBoxes.filter(box => box.isCompleted).length;
   const totalBoxes = gameState.treasureBoxes.length;
-  const [showStartScreen, setShowStartScreen] = useState(true);
-  const [isLoading, setIsLoading] = useState(false);
+  const [showEntryAnimation, setShowEntryAnimation] = useState(true);
 
-  const handleStartGame = () => {
-    setIsLoading(true);
-    // The GameStartScreen will handle the 5-second loading and call handleGameStart
-  };
-
-  const handleGameStart = () => {
+  useEffect(() => {
+    // Start the game after entry animation
+    const timer = setTimeout(() => {
+      setShowEntryAnimation(false);
+      actions.startGame();
+    }, 3000); // 3 second entry animation
+    
+    return () => clearTimeout(timer);
+  }, [actions]);
+  
+  const handleStartNow = () => {
+    setShowEntryAnimation(false);
     actions.startGame();
-    setShowStartScreen(false);
-    setIsLoading(false);
   };
 
-  // Show start screen
-  if (showStartScreen) {
+  const handleReset = () => {
+    actions.resetGame();
+    setShowEntryAnimation(true);
+  };
+
+  // Show entry animation
+  if (showEntryAnimation) {
     return (
-      <GameStartScreen 
-        onStartGame={isLoading ? handleGameStart : handleStartGame}
-        isLoading={isLoading}
-      />
+      <div className="fixed inset-0 bg-gradient-to-br from-green-600 via-green-500 to-green-400 flex items-center justify-center z-50 animate-pulse">
+        <div className="text-center animate-bounce">
+          <TreePine className="text-white mx-auto mb-6 animate-spin" size={120} />
+          <h1 className="text-6xl font-bold text-white mb-4 drop-shadow-2xl animate-pulse">
+            NCERT Math Adventure
+          </h1>
+          <p className="text-green-100 text-2xl mb-8 animate-fade-in">
+            Explore • Learn • Discover
+          </p>
+          <button
+            onClick={handleStartNow}
+            className="bg-white hover:bg-green-50 text-green-600 font-bold text-xl px-8 py-4 rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-110 animate-bounce flex items-center space-x-3 mx-auto"
+          >
+            <Play size={28} />
+            <span>Skip Animation</span>
+          </button>
+        </div>
+      </div>
     );
   }
 
@@ -90,11 +111,7 @@ function App() {
 
       {/* Reset Button */}
       <button
-        onClick={() => {
-          actions.resetGame();
-          setShowStartScreen(true);
-          setIsLoading(false);
-        }}
+        onClick={handleReset}
         className="fixed bottom-4 left-4 z-50 bg-red-500 hover:bg-red-600 text-white p-3 rounded-xl shadow-lg transition-all duration-200 transform hover:scale-105"
         title="Reset Game"
       >
@@ -113,11 +130,7 @@ function App() {
               and <span className="font-bold text-purple-600">{gameState.player.xp}</span> XP!
             </p>
             <button
-              onClick={() => {
-                actions.resetGame();
-                setShowStartScreen(true);
-                setIsLoading(false);
-              }}
+              onClick={handleReset}
               className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105"
             >
               Play Again

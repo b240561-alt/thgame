@@ -222,7 +222,7 @@ export const useGameState = () => {
     });
     
     localStorage.removeItem('treasureHuntSave');
-    setGamePhase('playing');
+    setGamePhase('start');
     setNearbyTreasure(null);
   }, []);
 
