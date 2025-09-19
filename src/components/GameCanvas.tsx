@@ -235,8 +235,19 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       
       // Main treasure chest
       const boxGeometry = new THREE.BoxGeometry(3, 2, 2.5);
-      const boxMaterial = new THREE.MeshLambertMaterial({ 
-        color: box.isCompleted ? 0xFFD700 : box.isUnlocked ? 0x8B4513 : 0x696969 
+      
+      // Different colors based on difficulty
+      let boxColor = 0x8B4513; // Default brown
+      if (box.question.difficulty === 'easy') boxColor = 0x32CD32; // Green
+      else if (box.question.difficulty === 'medium') boxColor = 0xFF8C00; // Orange
+      else if (box.question.difficulty === 'hard') boxColor = 0xFF4500; // Red-Orange
+      
+      if (box.isCompleted) boxColor = 0xFFD700; // Gold when completed
+      
+      const boxMaterial = new THREE.MeshPhongMaterial({ 
+        color: boxColor,
+        shininess: 100,
+        specular: 0x444444
       });
       const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
       boxMesh.position.y = 1;
@@ -246,8 +257,9 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       
       // Chest lid
       const lidGeometry = new THREE.BoxGeometry(3.2, 0.3, 2.7);
-      const lidMaterial = new THREE.MeshLambertMaterial({ 
-        color: box.isCompleted ? 0xFFD700 : box.isUnlocked ? 0x654321 : 0x555555 
+      const lidMaterial = new THREE.MeshPhongMaterial({ 
+        color: box.isCompleted ? 0xFFD700 : boxColor * 0.8,
+        shininess: 100
       });
       const lid = new THREE.Mesh(lidGeometry, lidMaterial);
       lid.position.set(0, 2.15, box.isCompleted ? -0.5 : 0);
@@ -255,27 +267,66 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
       lid.castShadow = true;
       boxGroup.add(lid);
       
-      // Lock (if not unlocked)
-      if (!box.isUnlocked) {
-        const lockGeometry = new THREE.CylinderGeometry(0.3, 0.3, 0.2);
-        const lockMaterial = new THREE.MeshLambertMaterial({ color: 0x444444 });
-        const lock = new THREE.Mesh(lockGeometry, lockMaterial);
-        lock.position.set(0, 1.5, 1.3);
-        lock.rotation.x = Math.PI / 2;
-        lock.castShadow = true;
-        boxGroup.add(lock);
+      // Add difficulty indicator gems on top
+      const gemGeometry = new THREE.OctahedronGeometry(0.3);
+      let gemColor = 0x00FF00; // Green for easy
+      if (box.question.difficulty === 'medium') gemColor = 0xFFA500; // Orange
+      else if (box.question.difficulty === 'hard') gemColor = 0xFF0000; // Red
+      
+      const gemMaterial = new THREE.MeshPhongMaterial({ 
+        color: gemColor,
+        shininess: 100,
+        transparent: true,
+        opacity: 0.8
+      });
+      const gem = new THREE.Mesh(gemGeometry, gemMaterial);
+      gem.position.set(0, 2.8, 0);
+      gem.castShadow = true;
+      boxGroup.add(gem);
+      
+      // Class indicator (floating text-like shape)
+      const classNumber = parseInt(box.question.id.split('_')[1]);
+      const textGeometry = new THREE.RingGeometry(0.8, 1.2, 8);
+      const textMaterial = new THREE.MeshBasicMaterial({ 
+        color: classNumber === 6 ? 0x00BFFF : classNumber === 7 ? 0x9370DB : 0xFF69B4,
+        transparent: true,
+        opacity: 0.7
+      });
+      const classRing = new THREE.Mesh(textGeometry, textMaterial);
+      classRing.position.set(0, 3.5, 0);
+      classRing.rotation.x = -Math.PI / 2;
+      boxGroup.add(classRing);
+      
+      // Add floating particles around the box
+      for (let p = 0; p < 8; p++) {
+        const particleGeometry = new THREE.SphereGeometry(0.1);
+        const particleMaterial = new THREE.MeshBasicMaterial({ 
+          color: gemColor,
+          transparent: true,
+          opacity: 0.6
+        });
+        const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+        
+        const angle = (p / 8) * Math.PI * 2;
+        const radius = 4 + Math.sin(Date.now() * 0.001 + p) * 0.5;
+        particle.position.set(
+          Math.cos(angle) * radius,
+          2 + Math.sin(Date.now() * 0.002 + p) * 1,
+          Math.sin(angle) * radius
+        );
+        boxGroup.add(particle);
       }
       
       boxGroup.position.set(box.x, 0, box.y);
       scene.add(boxGroup);
 
-      // Glow effect for unlocked boxes
-      if (box.isUnlocked && !box.isCompleted) {
-        const glowGeometry = new THREE.SphereGeometry(4);
+      // Enhanced glow effect for all boxes
+      if (!box.isCompleted) {
+        const glowGeometry = new THREE.SphereGeometry(5);
         const glowMaterial = new THREE.MeshBasicMaterial({ 
-          color: 0xFFD700, 
+          color: gemColor, 
           transparent: true, 
-          opacity: 0.2 
+          opacity: 0.15 
         });
         const glow = new THREE.Mesh(glowGeometry, glowMaterial);
         glow.position.set(box.x, 2, box.y);
@@ -283,7 +334,7 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         
         // Animate glow
         const animateGlow = () => {
-          glow.material.opacity = 0.1 + Math.sin(Date.now() * 0.003) * 0.1;
+          glow.material.opacity = 0.1 + Math.sin(Date.now() * 0.005) * 0.08;
           glow.rotation.y += 0.01;
         };
         
@@ -293,25 +344,35 @@ export const GameCanvas: React.FC<GameCanvasProps> = ({
         };
         glowAnimation();
       }
-
-      // Hint arrow for next treasure (if hints enabled)
-      if (hintsEnabled && box.isUnlocked && !box.isCompleted && index === treasureBoxes.findIndex(b => b.isUnlocked && !b.isCompleted)) {
-        const arrowGeometry = new THREE.ConeGeometry(0.5, 2);
+      
+      // Enhanced hint system - show arrows for nearest uncompleted boxes
+      if (hintsEnabled && !box.isCompleted) {
+        const arrowGeometry = new THREE.ConeGeometry(0.8, 3);
         const arrowMaterial = new THREE.MeshBasicMaterial({ 
-          color: 0x00FF00,
+          color: 0xFFFF00,
           transparent: true,
-          opacity: 0.8
+          opacity: 0.9
         });
         const arrow = new THREE.Mesh(arrowGeometry, arrowMaterial);
-        arrow.position.set(box.x, 6, box.y);
+        arrow.position.set(box.x, 8, box.y);
         arrow.rotation.x = Math.PI;
         scene.add(arrow);
         
-        // Animate hint arrow
+        // Enhanced arrow animation
         const animateArrow = () => {
-          arrow.position.y = 6 + Math.sin(Date.now() * 0.005) * 1;
-          arrow.rotation.z += 0.02;
-          arrow.material.opacity = 0.6 + Math.sin(Date.now() * 0.003) * 0.2;
+          arrow.position.y = 8 + Math.sin(Date.now() * 0.008 + index) * 2;
+          arrow.rotation.z += 0.03;
+          arrow.material.opacity = 0.7 + Math.sin(Date.now() * 0.006 + index) * 0.3;
+          
+          // Color cycling for extra attention
+          const time = Date.now() * 0.003;
+          const r = Math.sin(time) * 0.5 + 0.5;
+          const g = Math.sin(time + 2) * 0.5 + 0.5;
+          const b = Math.sin(time + 4) * 0.5 + 0.5;
+          arrow.material.color.setRGB(r, g, b);
+          
+          // Scale pulsing
+          arrow.scale.setScalar(1 + Math.sin(Date.now() * 0.01 + index) * 0.2);
         };
         
         const arrowAnimation = () => {

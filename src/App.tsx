@@ -64,8 +64,10 @@ function App() {
           <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-2xl shadow-lg px-6 py-3">
             <div className="flex items-center space-x-3">
               <TreePine className="text-green-600" size={28} />
-              <h1 className="text-2xl font-bold text-gray-800">NCERT Math Adventure</h1>
-              <span className="text-sm text-gray-600 ml-2">Class 6-8 Mathematics</span>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+                🌟 NCERT Math Adventure
+              </h1>
+              <span className="text-sm text-gray-600 ml-2">📚 Classes 6-8 Mathematics</span>
             </div>
           </div>
         </div>
@@ -124,18 +126,30 @@ function App() {
       {gamePhase === 'completed' && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md text-center">
-            <div className="text-6xl mb-4">🏆</div>
-            <h2 className="text-3xl font-bold text-gray-800 mb-4">Congratulations!</h2>
+            <div className="text-6xl mb-4">🎉🏆🎊</div>
+            <h2 className="text-3xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent mb-4">
+              NCERT Master Achieved!
+            </h2>
             <p className="text-lg text-gray-600 mb-6">
-              You've found all the treasures in the jungle! 
-              You earned <span className="font-bold text-yellow-600">{gameState.player.coins}</span> coins 
-              and <span className="font-bold text-purple-600">{gameState.player.xp}</span> XP!
+              🌟 Amazing! You've conquered all NCERT Math challenges across Classes 6-8! 
+              <br /><br />
+              💰 Total Coins: <span className="font-bold text-yellow-600">{gameState.player.coins}</span>
+              <br />
+              ⭐ Total XP: <span className="font-bold text-purple-600">{gameState.player.xp}</span>
+              <br />
+              📈 Final Level: <span className="font-bold text-green-600">{gameState.player.level}</span>
             </p>
+            <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 rounded-xl mb-6">
+              <p className="text-sm text-gray-700">
+                🎓 You've demonstrated mastery of fundamental mathematics concepts from NCERT curriculum!
+                Keep practicing to strengthen your mathematical foundation.
+              </p>
+            </div>
             <button
               onClick={handleReset}
-              className="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105"
+              className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white px-8 py-3 rounded-xl font-semibold text-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
             >
-              Play Again
+              🔄 New Adventure
             </button>
           </div>
         </div>

@@ -73,9 +73,12 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
             <div className="flex items-center space-x-3">
               <Award className="text-white" size={24} />
               <div>
-                <h2 className="text-xl font-bold text-white">Treasure Question</h2>
+                <h2 className="text-xl font-bold text-white">
+                  🏆 NCERT Class {question.id.split('_')[1]} Challenge
+                </h2>
                 <p className="text-green-100 text-sm">
-                  {question.subject} • {question.difficulty}
+                  {question.subject} • {question.difficulty.toUpperCase()} • 
+                  {question.difficulty === 'easy' ? ' 🟢' : question.difficulty === 'medium' ? ' 🟡' : ' 🔴'}
                 </p>
               </div>
             </div>
@@ -102,6 +105,23 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
             <h3 className="text-2xl font-bold text-gray-800 mb-4 leading-relaxed">
               {question.question}
             </h3>
+            
+            {/* Difficulty and Class indicators */}
+            <div className="flex items-center space-x-4 mb-4">
+              <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                question.difficulty === 'easy' ? 'bg-green-100 text-green-800' :
+                question.difficulty === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                'bg-red-100 text-red-800'
+              }`}>
+                {question.difficulty.toUpperCase()}
+              </span>
+              <span className="px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800">
+                Class {question.id.split('_')[1]}
+              </span>
+              <span className="px-3 py-1 rounded-full text-sm font-semibold bg-purple-100 text-purple-800">
+                {question.subject}
+              </span>
+            </div>
           </div>
 
           {!showExplanation && (
@@ -151,19 +171,22 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
                 {isCorrect ? (
                   <div className="text-green-600">
                     <Award size={48} className="mx-auto mb-3" />
-                    <h3 className="text-2xl font-bold">Correct!</h3>
-                    <p className="text-green-700 mt-2">Great job! You earned coins and XP!</p>
+                    <h3 className="text-2xl font-bold">🎉 Excellent Work!</h3>
+                    <p className="text-green-700 mt-2">
+                      Perfect! You've mastered this Class {question.id.split('_')[1]} concept! 
+                      <br />💰 Coins earned • ⭐ XP gained
+                    </p>
                   </div>
                 ) : (
                   <div className="text-red-600">
                     <AlertCircle size={48} className="mx-auto mb-3" />
                     <h3 className="text-2xl font-bold">
-                      {attemptsLeft > 0 ? 'Try Again!' : 'Solution Revealed'}
+                      {attemptsLeft > 0 ? '🤔 Keep Learning!' : '📚 Learning Opportunity'}
                     </h3>
                     <p className="text-red-700 mt-2">
                       {attemptsLeft > 0 
-                        ? `You have ${attemptsLeft} more attempt${attemptsLeft !== 1 ? 's' : ''}!`
-                        : 'Don\'t worry, you can still continue!'
+                        ? `💪 ${attemptsLeft} more attempt${attemptsLeft !== 1 ? 's' : ''} to master this!`
+                        : '🌟 Every mistake is a step towards mastery!'
                       }
                     </p>
                   </div>
@@ -171,15 +194,24 @@ export const QuestionModal: React.FC<QuestionModalProps> = ({
               </div>
 
               <div className="bg-blue-50 border-l-4 border-blue-400 p-6 rounded-r-xl">
-                <h4 className="font-semibold text-blue-800 mb-2">Explanation:</h4>
+                <h4 className="font-semibold text-blue-800 mb-2">
+                  📖 NCERT Concept Explanation:
+                </h4>
                 <p className="text-blue-700 leading-relaxed">{question.explanation}</p>
+                
+                <div className="mt-4 p-3 bg-blue-100 rounded-lg">
+                  <p className="text-sm text-blue-600">
+                    💡 <strong>Study Tip:</strong> Practice similar problems from your NCERT textbook 
+                    Class {question.id.split('_')[1]} to strengthen this concept!
+                  </p>
+                </div>
               </div>
 
               {(isCorrect || attemptsLeft === 0) && (
                 <div className="text-center">
-                  <p className="text-gray-600">Moving to next treasure...</p>
+                  <p className="text-gray-600">🗺️ Continue exploring for more treasures...</p>
                   <div className="mt-2 w-full bg-gray-200 rounded-full h-2">
-                    <div className="bg-green-500 h-2 rounded-full animate-pulse w-full"></div>
+                    <div className="bg-gradient-to-r from-green-400 to-blue-500 h-2 rounded-full animate-pulse w-full"></div>
                   </div>
                 </div>
               )}

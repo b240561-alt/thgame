@@ -44,7 +44,11 @@ export const GameUI: React.FC<GameUIProps> = ({
 
             <div className="flex items-center space-x-4">
               <div className="text-sm text-gray-600">
-                Progress: {completedBoxes}/{totalBoxes}
+                🏆 Progress: {completedBoxes}/{totalBoxes} Treasures
+              </div>
+              
+              <div className="text-sm text-gray-600">
+                📚 NCERT Classes 6-8
               </div>
               
               <button
@@ -64,7 +68,7 @@ export const GameUI: React.FC<GameUIProps> = ({
           {/* Progress Bar */}
           <div className="mt-3 w-full bg-gray-200 rounded-full h-3">
             <div 
-              className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
+              className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 h-3 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${(completedBoxes / totalBoxes) * 100}%` }}
             ></div>
           </div>
@@ -102,7 +106,13 @@ export const GameUI: React.FC<GameUIProps> = ({
             <p><span className="font-medium">Mouse</span> - Look around</p>
             <p><span className="font-medium">SPACE</span> - Jump</p>
             <p><span className="font-medium">Click</span> - Lock mouse cursor</p>
-            <p className="text-green-600 font-medium mt-2">Walk near glowing boxes to interact!</p>
+            <p className="text-green-600 font-medium mt-2">
+              🎯 Walk near glowing treasure boxes to solve NCERT problems!
+            </p>
+            <div className="mt-2 text-xs text-gray-500">
+              <p>🟢 Easy • 🟡 Medium • 🔴 Hard</p>
+              <p>💙 Class 6 • 💜 Class 7 • 💖 Class 8</p>
+            </div>
           </div>
         </div>
       </div>

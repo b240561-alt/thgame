@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { GameState, Player, TreasureBox, Question } from '../types/game';
-import { getRandomQuestions } from '../data/questions';
+import { getRandomQuestions, getQuestionsByClass } from '../data/questions';
 
 type GamePhase = 'start' | 'loading' | 'playing' | 'completed';
 
@@ -14,24 +14,44 @@ const INITIAL_PLAYER: Player = {
 };
 
 const createTreasureBoxes = (questions: Question[]): TreasureBox[] => {
-  // Generate random positions across the large jungle map
+  // Generate diverse positions across the jungle map in different zones
+  const zones = [
+    { centerX: 0, centerY: -60, radius: 25 },    // North zone
+    { centerX: 60, centerY: -30, radius: 25 },   // Northeast zone
+    { centerX: 60, centerY: 30, radius: 25 },    // Southeast zone
+    { centerX: 0, centerY: 60, radius: 25 },     // South zone
+    { centerX: -60, centerY: 30, radius: 25 },   // Southwest zone
+    { centerX: -60, centerY: -30, radius: 25 },  // Northwest zone
+    { centerX: 90, centerY: 0, radius: 20 },     // Far East
+    { centerX: -90, centerY: 0, radius: 20 },    // Far West
+    { centerX: 0, centerY: 90, radius: 20 },     // Far South
+    { centerX: 0, centerY: -90, radius: 20 },    // Far North
+    { centerX: 45, centerY: 45, radius: 15 },    // SE corner
+    { centerX: -45, centerY: -45, radius: 15 }   // NW corner
+  ];
+  
   const positions: { x: number; y: number }[] = [];
   
   for (let i = 0; i < questions.length; i++) {
-    let x, y, tooClose;
+    const zone = zones[i % zones.length];
+    let x, y, attempts = 0;
     
     do {
-      // Generate positions within jungle bounds, avoiding center spawn area
       const angle = Math.random() * Math.PI * 2;
-      const distance = 30 + Math.random() * 120; // Between 30-150 units from center
-      x = Math.cos(angle) * distance;
-      y = Math.sin(angle) * distance;
+      const distance = Math.random() * zone.radius;
+      x = zone.centerX + Math.cos(angle) * distance;
+      y = zone.centerY + Math.sin(angle) * distance;
       
-      // Check if too close to existing positions
-      tooClose = positions.some(pos => 
-        Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2)) < 25
+      // Ensure minimum distance from spawn (0,0) and other boxes
+      const distanceFromSpawn = Math.sqrt(x * x + y * y);
+      const tooCloseToSpawn = distanceFromSpawn < 20;
+      const tooCloseToOthers = positions.some(pos => 
+        Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2)) < 20
       );
-    } while (tooClose);
+      
+      attempts++;
+      if (attempts > 50) break; // Prevent infinite loop
+    } while ((tooCloseToSpawn || tooCloseToOthers) && attempts < 50);
     
     positions.push({ x, y });
   }
@@ -41,9 +61,9 @@ const createTreasureBoxes = (questions: Question[]): TreasureBox[] => {
     x: positions[index].x,
     y: positions[index].y,
     question,
-    isUnlocked: index === 0, // First box is unlocked
+    isUnlocked: true, // All boxes are unlocked for exploration
     isCompleted: false,
-    coins: 75 + (index * 35) // Increasing rewards for NCERT questions
+    coins: 50 + (question.difficulty === 'easy' ? 25 : question.difficulty === 'medium' ? 50 : 75) // Difficulty-based rewards
   }));
 };
 
@@ -52,7 +72,12 @@ export const useGameState = () => {
   const [nearbyTreasure, setNearbyTreasure] = useState<TreasureBox | null>(null);
   
   const [gameState, setGameState] = useState<GameState>(() => {
-    const questions = getRandomQuestions(8); // More questions for extended gameplay
+    // Mix questions from all classes for variety
+    const class6Questions = getQuestionsByClass(6, 4);
+    const class7Questions = getQuestionsByClass(7, 4);
+    const class8Questions = getQuestionsByClass(8, 4);
+    const questions = [...class6Questions, ...class7Questions, ...class8Questions].sort(() => 0.5 - Math.random());
+    
     const treasureBoxes = createTreasureBoxes(questions);
     
     return {
@@ -209,7 +234,12 @@ export const useGameState = () => {
   }, [nearbyTreasure, interactWithTreasureBox]);
 
   const resetGame = useCallback(() => {
-    const questions = getRandomQuestions(8);
+    // Generate new mix of questions for replay value
+    const class6Questions = getQuestionsByClass(6, 4);
+    const class7Questions = getQuestionsByClass(7, 4);
+    const class8Questions = getQuestionsByClass(8, 4);
+    const questions = [...class6Questions, ...class7Questions, ...class8Questions].sort(() => 0.5 - Math.random());
+    
     const treasureBoxes = createTreasureBoxes(questions);
     
     setGameState({
