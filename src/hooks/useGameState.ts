@@ -35,6 +35,7 @@ const createTreasureBoxes = (questions: Question[]): TreasureBox[] => {
   for (let i = 0; i < questions.length; i++) {
     const zone = zones[i % zones.length];
     let x, y, attempts = 0;
+    let tooCloseToSpawn, tooCloseToOthers;
     
     do {
       const angle = Math.random() * Math.PI * 2;
@@ -44,8 +45,8 @@ const createTreasureBoxes = (questions: Question[]): TreasureBox[] => {
       
       // Ensure minimum distance from spawn (0,0) and other boxes
       const distanceFromSpawn = Math.sqrt(x * x + y * y);
-      const tooCloseToSpawn = distanceFromSpawn < 20;
-      const tooCloseToOthers = positions.some(pos => 
+      tooCloseToSpawn = distanceFromSpawn < 20;
+      tooCloseToOthers = positions.some(pos => 
         Math.sqrt(Math.pow(x - pos.x, 2) + Math.pow(y - pos.y, 2)) < 20
       );
       
